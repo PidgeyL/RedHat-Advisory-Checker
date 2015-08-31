@@ -28,22 +28,25 @@ def main():
     cves=[]
     for line in fileinput.input(): cves.append(line.strip())
 
-  for cve in cves:
-    cve=cve.upper()
-    if re.match("CVE-\d\d\d\d-\d\d\d\d\d?", cve):
-      search=cve
-    elif re.match("\d\d\d\d-\d\d\d\d\d?", cve):
-      search="CVE-%s"%cve
-    elif re.match("\d\d\d\d\d?", cve):
-      search="CVE-%s-%s"%(date.today().year, cve)
-    try:
-      if (sys.version_info > (3, 0)):
-        f = str(urllib.request.urlopen(url+search).read(),"utf-8")
-      else:
-        f = urllib.urlopen(url+search).read()
-      if "<th>Impact:</th>" in f:
-        print("[+] %s - Applicable"%search)
-      elif '<h1>CVE not found</h1>' in f:
-        print("[-] %s - N/A"%search)
-    except KeyboardInterrupt:
-      sys.exit(0)
+  try:
+    for cve in cves:
+      cve=cve.upper()
+      if re.match("CVE-\d\d\d\d-\d\d\d\d\d?", cve):
+        search=cve
+      elif re.match("\d\d\d\d-\d\d\d\d\d?", cve):
+        search="CVE-%s"%cve
+      elif re.match("\d\d\d\d\d?", cve):
+        search="CVE-%s-%s"%(date.today().year, cve)
+      try:
+        if (sys.version_info > (3, 0)):
+          f = str(urllib.request.urlopen(url+search).read(),"utf-8")
+        else:
+          f = urllib.urlopen(url+search).read()
+        if "<th>Impact:</th>" in f:
+          print("[+] %s - Applicable"%search)
+        elif '<h1>CVE not found</h1>' in f:
+          print("[-] %s - N/A"%search)
+      except KeyboardInterrupt:
+        sys.exit(0)
+  except IOError:
+    print("Could not fetch the info. Are you connected to the Internet?")
