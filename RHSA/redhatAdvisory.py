@@ -1,7 +1,12 @@
-# Replace with your session ID for tickets.events.ccc.de
-SESSIONID=""
+#!/usr/bin/env python3
+#
+# Script that automatically checks the RedHat security advisories to see if a CVE applies
+#
+# Software is free software released under the "Modified BSD license"
+#
+# Copyright (c) 2015	 	Pieter-Jan Moreels - pieterjan.moreels@gmail.com
+
 url='https://access.redhat.com/security/cve/'
-cves=['CVE-2012-2150']
 
 # Imports
 import sys
@@ -14,6 +19,12 @@ else:
   import urllib
 import re
 import time
+
+def getContentOf(data, key, keyEncapsulation, valueEncapsulation):
+  lookFor="<%s>%s</%s>"%(keyEncapsulation, key, keyEncapsulation)
+  start=data[data.index(lookFor)+len(lookFor):]
+  value=start[:start.index("</%s>"%valueEncapsulation)].replace("<%s>"%valueEncapsulation, "")
+  return value.strip()
 
 def main():
   description='''Queries the RedHat advisories to see if CVEs apply'''
@@ -43,7 +54,12 @@ def main():
         else:
           f = urllib.urlopen(url+search).read()
         if "<th>Impact:</th>" in f:
-          print("[+] %s - Applicable"%search)
+          impact=getContentOf(f, "Impact:", "th", "td")
+          impact=impact[impact.index(">")+1:]
+          impact=impact[:impact.index("<")]
+          print("[+] %s - %s"%(search, impact))
+          if "<h2>Statement</h2>" in f:
+            print(" * %s"%getContentOf(f, "Statement", "h2", "p").replace("<br />", "\n * "))
         elif '<h1>CVE not found</h1>' in f:
           print("[-] %s - N/A"%search)
       except KeyboardInterrupt:
