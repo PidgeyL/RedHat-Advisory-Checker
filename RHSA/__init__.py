@@ -1,1 +1,1 @@
-import redhatAdvisory
+from . import redhatAdvisory
