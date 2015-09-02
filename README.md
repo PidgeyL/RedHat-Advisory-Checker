@@ -1,7 +1,7 @@
 # RedHat-Advisory-Checker
 Script that automatically checks the RedHat security advisories to see if a CVE applies
 
-Made for Python 2.7, support for 3.4 is in progress <br />
+Made for Python 2.7 and 3.4<br />
 Runs on Linux (tested on Ubuntu 14.04) <br />
 Requires an internet connection (queries https://access.redhat.com/security/cve/)
 
