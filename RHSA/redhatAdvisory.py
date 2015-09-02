@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #
-# Script that automatically checks the RedHat security advisories to see if a CVE applies
+# Tool to query the RedHat Security Advisories to see if CVEs apply
 #
 # Software is free software released under the "Modified BSD license"
 #
 # Copyright (c) 2015	 	Pieter-Jan Moreels - pieterjan.moreels@gmail.com
 
+# Variables
 url='https://access.redhat.com/security/cve/'
 
 # Imports
