@@ -26,6 +26,8 @@ def getContentOf(data, key, keyEncapsulation, valueEncapsulation):
   lookFor="<%s>%s</%s>"%(keyEncapsulation, key, keyEncapsulation)
   start=data[data.index(lookFor)+len(lookFor):]
   value=start[:start.index("</%s>"%valueEncapsulation)].replace("<%s>"%valueEncapsulation, "")
+  k = value.rfind(">")
+  value = value[k+1:]
   return value.strip()
 
 def main():
@@ -50,21 +52,27 @@ def main():
         search="CVE-%s"%cve
       elif re.match("\d\d\d\d\d?", cve):
         search="CVE-%s-%s"%(date.today().year, cve)
+      else:
+        print("Invalid CVE: " + cve)
+        continue
       try:
         if (sys.version_info > (3, 0)):
           f = str(urllib.request.urlopen(url+search).read(),"utf-8")
         else:
           f = urllib.urlopen(url+search).read()
-        if "<th>Impact:</th>" in f:
+        if "<th>impact:</th>" in f.lower():
           impact=getContentOf(f, "Impact:", "th", "td")
-          impact=impact[impact.index(">")+1:]
-          impact=impact[:impact.index("<")]
           print("[+] %s - %s"%(search, impact))
-          if "<h2>Statement</h2>" in f:
-            print(" * %s"%getContentOf(f, "Statement", "h2", "p").replace("<br />", "\n * "))
+        elif "<dt>impact:</dt>" in f.lower():
+          impact=getContentOf(f, "Impact:", "dt", "span")
+          print("[+] %s - %s"%(search, impact))
+        if "<h2>statement</h2>" in f.lower():
+          print(" * %s"%getContentOf(f, "Statement", "h2", "p").replace("<br />", "\n * "))
         elif '<h1>CVE not found</h1>' in f:
           print("[-] %s - N/A"%search)
       except KeyboardInterrupt:
         sys.exit(0)
   except IOError:
     print("Could not fetch the info. Are you connected to the Internet?")
+
+main()
